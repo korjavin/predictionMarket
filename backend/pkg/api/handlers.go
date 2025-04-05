@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/dgraph-io/badger/v3"
@@ -780,7 +780,7 @@ func (h *Handler) GetBets(c *gin.Context) {
 // GetBet retrieves a specific bet contract by address
 func (h *Handler) GetBet(c *gin.Context) {
 	address := c.Param("address")
-	
+
 	if !common.IsHexAddress(address) {
 		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -788,7 +788,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet data from database
 	betBytes, err := h.getBet(address)
 	if err != nil {
@@ -798,7 +798,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	var betData DeployBetResponse
 	if err := json.Unmarshal(betBytes, &betData); err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
@@ -807,7 +807,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet contract instance
 	bet, err := NewTinyBet(common.HexToAddress(address), h.ethService.GetClient())
 	if err != nil {
@@ -817,7 +817,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet information from the contract
 	betInfo, err := bet.GetBetInfo(nil)
 	if err != nil {
@@ -827,7 +827,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet odds
 	trueOdds, falseOdds, err := bet.GetOdds(nil)
 	if err != nil {
@@ -835,7 +835,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		trueOdds = big.NewInt(50)
 		falseOdds = big.NewInt(50)
 	}
-	
+
 	// Get oracle information
 	oracle, err := NewTinyOracle(common.HexToAddress(betData.OracleAddress), h.ethService.GetClient())
 	if err != nil {
@@ -845,7 +845,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get the oracle result and whether it's set
 	oracleResult, resultSet, err := oracle.GetResult(nil)
 	if err != nil {
@@ -855,16 +855,16 @@ func (h *Handler) GetBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Only include result if it has been set
 	var resultPtr *bool
 	if resultSet {
 		resultPtr = &oracleResult
 	}
-	
+
 	// Convert release date to time.Time for better serialization
 	releaseDateTime := time.Unix(betInfo.ReleaseDate.Int64(), 0)
-	
+
 	betResponse := map[string]interface{}{
 		"address":        address,
 		"oracleAddress":  betData.OracleAddress,
@@ -877,11 +877,11 @@ func (h *Handler) GetBet(c *gin.Context) {
 		"falseOdds":      falseOdds.Int64(),
 		"resultSet":      resultSet,
 	}
-	
+
 	if resultPtr != nil {
 		betResponse["result"] = *resultPtr
 	}
-	
+
 	c.JSON(http.StatusOK, Response{
 		Success: true,
 		Data:    betResponse,
@@ -891,7 +891,7 @@ func (h *Handler) GetBet(c *gin.Context) {
 // CloseBet closes a bet and distributes funds to winners
 func (h *Handler) CloseBet(c *gin.Context) {
 	address := c.Param("address")
-	
+
 	if !common.IsHexAddress(address) {
 		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -899,7 +899,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet contract instance
 	bet, err := NewTinyBet(common.HexToAddress(address), h.ethService.GetClient())
 	if err != nil {
@@ -909,7 +909,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get bet information from the contract
 	betInfo, err := bet.GetBetInfo(nil)
 	if err != nil {
@@ -919,7 +919,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Check if bet is already closed
 	if betInfo.IsClosed {
 		c.JSON(http.StatusBadRequest, Response{
@@ -928,7 +928,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Check if we're past the release date
 	currentTime := time.Now().Unix()
 	if currentTime < betInfo.ReleaseDate.Int64() {
@@ -938,7 +938,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Get the oracle address
 	betData := DeployBetResponse{}
 	betBytes, err := h.getBet(address)
@@ -949,7 +949,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	if err := json.Unmarshal(betBytes, &betData); err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
@@ -957,7 +957,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Check if the oracle result is set
 	oracle, err := NewTinyOracle(common.HexToAddress(betData.OracleAddress), h.ethService.GetClient())
 	if err != nil {
@@ -967,7 +967,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	_, isSet, err := oracle.GetResult(nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
@@ -976,7 +976,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	if !isSet {
 		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -984,7 +984,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// Close the bet
 	ctx := c.Request.Context()
 	auth, err := h.ethService.CreateTransactOpts(ctx)
@@ -995,7 +995,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	tx, err := bet.CloseBet(auth)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
@@ -1004,7 +1004,7 @@ func (h *Handler) CloseBet(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Response{
 		Success: true,
 		Data: map[string]interface{}{
