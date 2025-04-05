@@ -1,0 +1,99 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-contracts:
+    name: Test Smart Contracts
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install Truffle and Ganache
+      run: |
+        npm install -g truffle
+        npm install -g ganache
+    
+    - name: Install dependencies
+      run: |
+        cd contracts
+        npm init -y
+        npm install @openzeppelin/contracts
+        npm install chai
+    
+    # Add tests setup here in the future
+    - name: Run tests
+      run: |
+        echo "Smart contract tests will be run here"
+        # This is a placeholder. Once contract tests are ready:
+        # cd contracts
+        # truffle test
+
+  build-backend:
+    name: Build and Test Backend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        go mod tidy
+    
+    - name: Build
+      run: |
+        cd backend
+        go build -v ./...
+    
+    - name: Test
+      run: |
+        cd backend
+        go test -v ./...
+
+  build-and-push-images:
+    name: Build and Push Docker Images
+    needs: [build-backend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    
+    - name: Build and push backend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        push: true
+        tags: korjavin/prediction-market-backend:latest
+    
+    - name: Build and push frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./web
+        push: true
+        tags: korjavin/prediction-market-frontend:latest

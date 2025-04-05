@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Market</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">TinyBet Prediction Market</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="oracles">Oracles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="bets">Bets</a>
+                    </li>
+                </ul>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="wallet-status text-light me-2">
+                        Not connected
+                    </div>
+                    <button class="btn btn-outline-light" id="connectWalletBtn">Connect Wallet</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Home Page -->
+        <div id="home-page" class="page-section">
+            <div class="jumbotron">
+                <h1>Welcome to TinyBet Prediction Market</h1>
+                <p class="lead">Create and participate in prediction markets on the Ethereum blockchain</p>
+                <hr class="my-4">
+                <p>TinyBet is a simple, decentralized prediction market platform. Create or find bets, predict outcomes, and earn rewards for being correct!</p>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-primary btn-lg" href="#" role="button" data-page="oracles">Create Oracle</a>
+                    <a class="btn btn-success btn-lg" href="#" role="button" data-page="bets">Create Bet</a>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create Oracle</h5>
+                            <p class="card-text">Create a new oracle that will determine the outcome of bets.</p>
+                            <a href="#" class="btn btn-primary" data-page="oracles">Create Oracle</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create Bet</h5>
+                            <p class="card-text">Create a new prediction market using an existing oracle.</p>
+                            <a href="#" class="btn btn-primary" data-page="bets">Create Bet</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">How It Works</h5>
+                            <p class="card-text">Learn more about how the TinyBet prediction market works.</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#howItWorksModal">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Oracles Page -->
+        <div id="oracles-page" class="page-section d-none">
+            <h2>Oracles</h2>
+            <p>Create and manage prediction oracles.</p>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            Create New Oracle
+                        </div>
+                        <div class="card-body">
+                            <form id="createOracleForm">
+                                <div class="mb-3">
+                                    <label for="trustedWallets" class="form-label">Trusted Wallets (comma separated)</label>
+                                    <textarea class="form-control" id="trustedWallets" rows="3" placeholder="0x123...456,0x789...012"></textarea>
+                                    <div class="form-text">List of wallet addresses allowed to set the result</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Deploy Oracle</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Deployed Oracles</h3>
+            <div id="oraclesList" class="row">
+                <!-- Oracle cards will be added here dynamically -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bets Page -->
+        <div id="bets-page" class="page-section d-none">
+            <h2>Prediction Markets</h2>
+            <p>Create and participate in prediction markets.</p>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            Create New Prediction Market
+                        </div>
+                        <div class="card-body">
+                            <form id="createBetForm">
+                                <div class="mb-3">
+                                    <label for="oracleAddress" class="form-label">Oracle Address</label>
+                                    <input type="text" class="form-control" id="oracleAddress" placeholder="0x123...">
+                                    <div class="form-text">Address of the oracle that will determine the outcome</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="betQuestion" class="form-label">Question</label>
+                                    <input type="text" class="form-control" id="betQuestion" placeholder="Will X happen by Y date?">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="releaseDate" class="form-label">Release Date</label>
+                                    <input type="datetime-local" class="form-control" id="releaseDate">
+                                    <div class="form-text">Date when the bet will be closed and payouts determined</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Deploy Prediction Market</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Active Prediction Markets</h3>
+            <div id="betsList" class="row">
+                <!-- Bet cards will be added here dynamically -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bet Detail Modal -->
+        <div class="modal fade" id="betDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="betDetailTitle">Bet Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="betDetailBody">
+                        <div class="text-center py-5">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works Modal -->
+        <div class="modal fade" id="howItWorksModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">How TinyBet Works</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Step 1: Create an Oracle</h4>
+                        <p>An Oracle is a smart contract that determines the outcome of a prediction market. When you create an Oracle, you specify trusted wallet addresses that can set the result.</p>
+
+                        <h4>Step 2: Create a Prediction Market</h4>
+                        <p>Using an existing Oracle, you can create a prediction market by specifying a question and a release date. Users can place bets on whether the outcome will be True or False.</p>
+
+                        <h4>Step 3: Place Bets</h4>
+                        <p>Users can bet ETH on either True or False outcomes until the release date is reached.</p>
+
+                        <h4>Step 4: Oracle Resolution</h4>
+                        <p>After the release date, one of the trusted wallets must set the Oracle's result to True or False.</p>
+
+                        <h4>Step 5: Bet Closure & Payout</h4>
+                        <p>Once the Oracle has a result, anyone can trigger the closure of the bet, which will distribute funds to winners proportionally to their bets.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5 py-3">
+        <div class="container">
+            <p class="mb-0 text-center">© 2025 TinyBet Prediction Market | <a href="https://github.com/korjavin/predictionMarket" class="text-light">GitHub</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
