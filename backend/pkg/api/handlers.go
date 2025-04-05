@@ -12,6 +12,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/korjavin/predictionMarket/backend/pkg/ethereum"
+	"github.com/korjavin/predictionMarket/backend/pkg/ethereum/contracts"
+)
+
+// Use contracts package functions
+var (
+	DeployTinyOracle = contracts.DeployTinyOracle
+	NewTinyOracle    = contracts.NewTinyOracle
+	DeployTinyBet    = contracts.DeployTinyBet
+	NewTinyBet       = contracts.NewTinyBet
 )
 
 // Handler struct holds dependencies for API handlers
