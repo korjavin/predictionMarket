@@ -33,14 +33,16 @@ Each prediction market has a release date after which betting is closed and the 
 
 1. Install the [MetaMask browser extension](https://metamask.io/download.html)
 2. Create or import a wallet
-3. Connect to the Ethereum testnet (we use Goerli)
+3. Connect to the Ethereum testnet (we use Sepolia)
 
 ### Getting Test ETH
 
-You can get test ETH for Goerli testnet from:
-- [Goerli Faucet](https://goerlifaucet.com/)
-- [Chainlink Faucet](https://faucets.chain.link/)
-- [Alchemy Goerli Faucet](https://goerlifaucet.com/)
+You can get test ETH for Sepolia testnet from:
+- [Sepolia Faucet](https://sepoliafaucet.com/)
+- [Alchemy Sepolia Faucet](https://sepoliafaucet.com/)
+- [QuickNode Sepolia Faucet](https://faucet.quicknode.com/ethereum/sepolia)
+
+For more information about Ethereum networks and faucets, visit the [Ethereum Developer Documentation](https://ethereum.org/en/developers/docs/networks/).
 
 ## Using TinyBet
 

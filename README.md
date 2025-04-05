@@ -51,7 +51,7 @@ A simple UI built with HTML, CSS, and vanilla JavaScript that provides:
 - Node.js and npm (for contract development)
 - Go (for backend development)
 - An Ethereum wallet (like MetaMask)
-- Access to Ethereum testnet (Goerli, Sepolia, etc.)
+- Access to Ethereum testnet (Sepolia, etc.)
 - API key for an Ethereum RPC provider (Infura, Alchemy, etc.)
 
 ### Environment Variables
@@ -59,8 +59,8 @@ A simple UI built with HTML, CSS, and vanilla JavaScript that provides:
 Create a `.env` file in the project root:
 
 ```
-ETHEREUM_RPC=https://goerli.infura.io/v3/your-api-key
-NETWORK_ID=5
+ETHEREUM_RPC=https://sepolia.infura.io/v3/your-api-key
+NETWORK_ID=11155111
 PRIVATE_KEY=your-private-key-without-0x-prefix
 ```
 

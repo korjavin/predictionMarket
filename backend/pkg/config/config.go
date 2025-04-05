@@ -13,7 +13,7 @@ type Config struct {
 	EthereumRPC string
 	// Port the API server will listen on
 	Port string
-	// Network ID (e.g. 1 for mainnet, 5 for Goerli, etc.)
+	// Network ID (e.g. 1 for mainnet, 11155111 for Sepolia, etc.)
 	NetworkID string
 	// Private key for signing transactions (without 0x prefix)
 	PrivateKey string
@@ -27,7 +27,7 @@ func Load() (*Config, error) {
 	config := &Config{
 		EthereumRPC: getEnv("ETHEREUM_RPC", "http://localhost:8545"),
 		Port:        getEnv("PORT", "8080"),
-		NetworkID:   getEnv("NETWORK_ID", "5"), // Default to Goerli testnet
+		NetworkID:   getEnv("NETWORK_ID", "11155111"), // Default to Sepolia testnet
 		PrivateKey:  getEnv("PRIVATE_KEY", ""),
 	}
 
